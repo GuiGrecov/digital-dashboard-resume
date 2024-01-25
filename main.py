@@ -33,6 +33,9 @@ with st.container():
 #3. Gera o df
 df = yf.download(tickers=ativo , start = data_inicial, end = data_final, actions=True)
 
+# Preencha os valores NaN com zero (ou qualquer valor desejado)
+df["Adj Close"].fillna(0, inplace=True)
+
 
 #4. Criando metricas
 ult_atualizacao = df.index.max() #Data da ultima att
@@ -120,5 +123,3 @@ with st.container():
     with col22:
         st.caption("Para ter esse lucro médio precisaria a quantidade de ações abaixo")
         st.metric(f"Equivalente a ", " {:,.0f} Ações".format(compra))
-
-
