@@ -36,90 +36,93 @@ df = yf.download(tickers=ativo , start = data_inicial, end = data_final, actions
 # Preencha os valores NaN com zero (ou qualquer valor desejado)
 df["Adj Close"].fillna(0, inplace=True)
 
-
-#4. Criando metricas
-ult_atualizacao = df.index.max() #Data da ultima att
-ult_cotacao = round(df.loc[df.index.max(), "Adj Close"], 2) #Pega a última cotacao
-menor_cotacao = round(df["Adj Close"].min(), 2) #Pega a menor cotacao do periodo
-maior_cotacao = round(df["Adj Close"].max(), 2) #Pega a maior cotacao do periodo
-prim_cotacao = round(df.loc[df.index.min(), "Adj Close"],2 ) #Pega a primeira cotacao encontrada
-delta = round(((ult_cotacao- prim_cotacao)/ prim_cotacao)*100,2) #A variacao da cotacao no periodo
-data = df[df["Dividends"]>0]
-dividendo = data["Dividends"].mean()
-dividendo_soma = data["Dividends"].sum()
-historico = data["Dividends"].count()
-Pl = ult_cotacao / dividendo_soma
-dividen_max = data["Dividends"].max()
-dividen_min = data["Dividends"].min()
-dividend_yeld = round(dividendo_soma/ult_cotacao,4)*100
-
-
-print(data)
-
-with st.container():
-
-    st.subheader(f"Indicadores principais da ação {ativo}")
-    col11, col12, col13, col14, col15 = st.columns(5)
-
-    with col11:
-        st.metric(f"Última atualização - {ult_atualizacao} "," R$ {:,.2f}".format(ult_cotacao),f"{delta}%" )
-
-    with col12:
-        st.metric(f"Menor cotação do período: "," R$ {:,.2f}".format(menor_cotacao))
-
-    with col13:
-        st.metric(f"Maior cotação do período: "," R$ {:,.2f}".format(maior_cotacao))
-
-    with col14:
-        st.metric(f"Preço/Lucro "," {:,.2f}".format(Pl))
-
-    with col15:
-        st.metric(f"Dividend yield","  {:,.2f} %".format(dividend_yeld) )
+if not df.empty:
+    #4. Criando metricas
+    ult_atualizacao = df.index.max() #Data da ultima att
+    ult_cotacao = round(df.loc[df.index.max(), "Adj Close"], 2) #Pega a última cotacao
+    menor_cotacao = round(df["Adj Close"].min(), 2) #Pega a menor cotacao do periodo
+    maior_cotacao = round(df["Adj Close"].max(), 2) #Pega a maior cotacao do periodo
+    prim_cotacao = round(df.loc[df.index.min(), "Adj Close"],2 ) #Pega a primeira cotacao encontrada
+    delta = round(((ult_cotacao- prim_cotacao)/ prim_cotacao)*100,2) #A variacao da cotacao no periodo
+    data = df[df["Dividends"]>0]
+    dividendo = data["Dividends"].mean()
+    dividendo_soma = data["Dividends"].sum()
+    historico = data["Dividends"].count()
+    Pl = ult_cotacao / dividendo_soma
+    dividen_max = data["Dividends"].max()
+    dividen_min = data["Dividends"].min()
+    dividend_yeld = round(dividendo_soma/ult_cotacao,4)*100
 
 
-with st.container():
-    st.text("Preço das ações:")
-    st.area_chart(df["Adj Close"])
+    print(data)
 
-    st.text("Mínimo, Preço das Ações e Máximo")
-    st.line_chart(df[["Low","Adj Close", "High"]])
+    with st.container():
 
-with st.container():
-    st.subheader("Sobre os dividendos")
-    st.caption(f"Nessa parte iremos analisar profundamente a questão dos Dividendos pagos pela {ativo}")
+        st.subheader(f"Indicadores principais da ação {ativo}")
+        col11, col12, col13, col14, col15 = st.columns(5)
 
-    col5, col6, col7 = st.columns(3)
+        with col11:
+            st.metric(f"Última atualização - {ult_atualizacao} "," R$ {:,.2f}".format(ult_cotacao),f"{delta}%" )
 
-    with col5:
-        st.caption("Tabela com todos os pagamentos no intervalo: ")
-        st.dataframe(data[["Dividends"]])
+        with col12:
+            st.metric(f"Menor cotação do período: "," R$ {:,.2f}".format(menor_cotacao))
 
-    with col6:
-        st.metric(f"Quantidade de pagamentos no intervalo: ", " {:,.2f}".format(historico))
-        st.metric(f"Pagamento médio (Dividendos): ", " R$ {:,.2f}".format(dividendo))
+        with col13:
+            st.metric(f"Maior cotação do período: "," R$ {:,.2f}".format(maior_cotacao))
 
-    with col7:
-        st.metric(f"Pagamento máximo Dividendo", "R$ {:,.2f}".format(dividen_max))
-        st.metric(f"Pagamento mínimo Dividendo", "R$ {:,.2f}".format(dividen_min))
+        with col14:
+            st.metric(f"Preço/Lucro "," {:,.2f}".format(Pl))
+
+        with col15:
+            st.metric(f"Dividend yield","  {:,.2f} %".format(dividend_yeld) )
 
 
-with st.container():
-    st.caption("Grafico de linhas com os pagamentos dos Dividendos:")
-    st.line_chart(data["Dividends"])
+    with st.container():
+        st.text("Preço das ações:")
+        st.area_chart(df["Adj Close"])
 
-with st.container():
-    st.subheader("Simulador de lucros com Dividendo")
-    number = st.number_input('Quanto seria o investimento?')
-    st.write('O investimento é de: R$ ', number)
-    lucro = number * (dividend_yeld/100)
-    compra = number / ult_cotacao
-    print(compra)
-    col21, col22 = st.columns(2)
-    with col21:
+        st.text("Mínimo, Preço das Ações e Máximo")
+        st.line_chart(df[["Low","Adj Close", "High"]])
 
-        st.caption("FÓMULA PARA CÁLCULO DE LUCRO: Dividend Yield x Valor Investido")
-        st.metric(f"O lucro médio seria de: ", " R$ {:,.2f}".format(lucro))
+    with st.container():
+        st.subheader("Sobre os dividendos")
+        st.caption(f"Nessa parte iremos analisar profundamente a questão dos Dividendos pagos pela {ativo}")
 
-    with col22:
-        st.caption("Para ter esse lucro médio precisaria a quantidade de ações abaixo")
-        st.metric(f"Equivalente a ", " {:,.0f} Ações".format(compra))
+        col5, col6, col7 = st.columns(3)
+
+        with col5:
+            st.caption("Tabela com todos os pagamentos no intervalo: ")
+            st.dataframe(data[["Dividends"]])
+
+        with col6:
+            st.metric(f"Quantidade de pagamentos no intervalo: ", " {:,.2f}".format(historico))
+            st.metric(f"Pagamento médio (Dividendos): ", " R$ {:,.2f}".format(dividendo))
+
+        with col7:
+            st.metric(f"Pagamento máximo Dividendo", "R$ {:,.2f}".format(dividen_max))
+            st.metric(f"Pagamento mínimo Dividendo", "R$ {:,.2f}".format(dividen_min))
+
+
+    with st.container():
+        st.caption("Grafico de linhas com os pagamentos dos Dividendos:")
+        st.line_chart(data["Dividends"])
+
+    with st.container():
+        st.subheader("Simulador de lucros com Dividendo")
+        number = st.number_input('Quanto seria o investimento?')
+        st.write('O investimento é de: R$ ', number)
+        lucro = number * (dividend_yeld/100)
+        compra = number / ult_cotacao
+        print(compra)
+        col21, col22 = st.columns(2)
+        with col21:
+
+            st.caption("FÓMULA PARA CÁLCULO DE LUCRO: Dividend Yield x Valor Investido")
+            st.metric(f"O lucro médio seria de: ", " R$ {:,.2f}".format(lucro))
+
+        with col22:
+            st.caption("Para ter esse lucro médio precisaria a quantidade de ações abaixo")
+            st.metric(f"Equivalente a ", " {:,.0f} Ações".format(compra))
+
+else:
+    st.warning("O DataFrame está vazio. Verifique se os dados foram carregados corretamente.")
